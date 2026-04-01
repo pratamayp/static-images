@@ -1,13 +1,21 @@
 const Service = require('node-windows').Service;
+const path = require('path'); // Tambahkan modul path bawaan Node.js
 
 const svc = new Service({
-  name: 'iPad AutoPrint',
-  description: 'Server lokal untuk terima gambar dan print',
-  script: 'C:\\SistemAutoPrint\\server.js' 
+  name: 'iPad AutoPrint Server',
+  description: 'Server lokal untuk menerima gambar dari iPad dan auto-print.',
+  // __dirname otomatis mengambil lokasi folder tempat file service.js ini berada
+  script: path.join(__dirname, 'server.js') 
 });
 
 svc.on('install', function() {
   svc.start();
+  console.log('Service berhasil diinstal dan dijalankan!');
+});
+
+// Menangani error jika ada
+svc.on('error', function(err) {
+  console.error('Terjadi kesalahan:', err);
 });
 
 svc.install();
