@@ -1,14 +1,24 @@
 const express = require('express');
 const multer  = require('multer');
 const path = require('path');
+const fs = require('fs'); // Tambahkan modul File System
 const app = express();
 const port = 3000;
+
+// Path folder tujuan
+const uploadDir = 'E:\\Project\\Labs\\autoprint\\hasil';
+
+// CEK & BUAT FOLDER OTOMATIS: 
+// Jika folder belum ada, Node.js akan membuatnya sekarang juga
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Folder "hasil" belum ada, sistem membuatnya otomatis.');
+}
 
 // Konfigurasi tempat penyimpanan file
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Arahkan langsung ke folder hasil yang dipantau oleh aplikasi auto-print Anda
-    cb(null, 'E:\\Project\\Labs\\autoprint\\hasil'); 
+    cb(null, uploadDir); 
   },
   filename: function (req, file, cb) {
     // Membuat nama file unik berdasarkan waktu saat ini
@@ -20,10 +30,11 @@ const upload = multer({ storage: storage });
 
 // Endpoint untuk menerima upload dari iPad
 app.post('/upload', upload.single('image'), (req, res) => {
-  // Saat kode sampai di baris ini, file SUDAH SELESAI diunduh dan tersimpan di folder
+  if (!req.file) {
+    return res.status(400).send({ status: 'error', message: 'Tidak ada file yang dikirim' });
+  }
+
   console.log('File berhasil masuk ke folder:', req.file.path);
-  
-  // Langsung balas ke iPad bahwa pengiriman sukses
   res.send({ status: 'success', message: 'File masuk ke folder hasil' });
 });
 
