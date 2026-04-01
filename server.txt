@@ -1,35 +1,30 @@
 const express = require('express');
 const multer  = require('multer');
 const path = require('path');
-const { exec } = require('child_process');
 const app = express();
 const port = 3000;
 
+// Konfigurasi tempat penyimpanan file
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'C:\\SistemAutoPrint\\HasilFoto'); 
+    // Arahkan langsung ke folder hasil yang dipantau oleh aplikasi auto-print Anda
+    cb(null, 'E:\\Project\\Labs\\autoprint\\hasil'); 
   },
   filename: function (req, file, cb) {
+    // Membuat nama file unik berdasarkan waktu saat ini
     cb(null, 'print_' + Date.now() + path.extname(file.originalname));
   }
 });
 
 const upload = multer({ storage: storage });
 
+// Endpoint untuk menerima upload dari iPad
 app.post('/upload', upload.single('image'), (req, res) => {
-  const filePath = req.file.path;
-  console.log('Gambar diterima:', filePath);
+  // Saat kode sampai di baris ini, file SUDAH SELESAI diunduh dan tersimpan di folder
+  console.log('File berhasil masuk ke folder:', req.file.path);
   
-  // Perintah otomatis print menggunakan Windows Paint (tanpa buka aplikasi)
-  exec(`mspaint /pt "${filePath}"`, (err) => {
-    if (err) {
-      console.error('Gagal print:', err);
-    } else {
-      console.log('Perintah print berhasil dikirim ke printer default!');
-    }
-  });
-  
-  res.send({ status: 'success', message: 'Terkirim dan sedang diprint' });
+  // Langsung balas ke iPad bahwa pengiriman sukses
+  res.send({ status: 'success', message: 'File masuk ke folder hasil' });
 });
 
 app.listen(port, '0.0.0.0', () => {
