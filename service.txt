@@ -1,0 +1,13 @@
+const Service = require('node-windows').Service;
+
+const svc = new Service({
+  name: 'iPad AutoPrint',
+  description: 'Server lokal untuk terima gambar dan print',
+  script: 'C:\\SistemAutoPrint\\server.js' 
+});
+
+svc.on('install', function() {
+  svc.start();
+});
+
+svc.install();
